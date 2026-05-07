@@ -1,345 +1,1380 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>TransferIQ — AI Transfer Pricing Platform</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/tabler-icons/3.5.0/tabler-icons.min.css">
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<style>
-  * { box-sizing: border-box; margin: 0; padding: 0; }
-  :root {
-    --navy: #0f1b2d;
-    --navy2: #162236;
-    --navy3: #1e3050;
-    --accent: #2a7fff;
-    --accent2: #00c8a0;
-    --gold: #f5a623;
-    --text: var(--color-text-primary);
-    --text2: var(--color-text-secondary);
-    --border: var(--color-border-tertiary);
-    --surface: var(--color-background-primary);
-    --surface2: var(--color-background-secondary);
-    --r: 8px;
-    --r2: 12px;
-  }
-  .app { display: flex; flex-direction: column; height: 700px; font-size: 13px; background: var(--surface2); border-radius: var(--r2); overflow: hidden; border: 0.5px solid var(--border); }
-  .topbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--surface); border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
-  .logo { font-size: 14px; font-weight: 500; color: var(--text); letter-spacing: -0.3px; }
-  .logo span { color: #2a7fff; }
-  .project-badge { background: var(--surface2); border: 0.5px solid var(--border); border-radius: 6px; padding: 3px 10px; font-size: 12px; color: var(--text2); }
-  .tabs { display: flex; gap: 2px; margin-left: auto; }
-  .tab { padding: 5px 14px; border-radius: 6px; font-size: 12px; color: var(--text2); cursor: pointer; border: none; background: transparent; }
-  .tab.active { background: var(--surface2); color: var(--text); font-weight: 500; }
-  .main { display: flex; flex: 1; overflow: hidden; }
-  /* SIDEBAR */
-  .sidebar { width: 200px; flex-shrink: 0; border-right: 0.5px solid var(--border); background: var(--surface); display: flex; flex-direction: column; overflow: hidden; }
-  .sidebar-section { padding: 10px 12px 4px; font-size: 10px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; }
-  .sidebar-item { display: flex; align-items: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--text2); cursor: pointer; border-radius: 0; transition: background .1s; border-left: 2px solid transparent; }
-  .sidebar-item:hover { background: var(--surface2); }
-  .sidebar-item.active { color: var(--text); border-left-color: #2a7fff; background: var(--surface2); }
-  .sidebar-item i { font-size: 15px; }
-  .doc-item { display: flex; align-items: center; gap: 8px; padding: 5px 12px; font-size: 11px; color: var(--text2); cursor: pointer; }
-  .doc-item:hover { background: var(--surface2); color: var(--text); }
-  .doc-badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 500; }
-  .doc-badge.green { background: #e8f5ee; color: #1a7a42; }
-  .doc-badge.blue { background: #e3eeff; color: #1a50a0; }
-  .doc-badge.amber { background: #fff3da; color: #8a6010; }
-  @media (prefers-color-scheme: dark) {
-    .doc-badge.green { background: #0d3320; color: #4ecb80; }
-    .doc-badge.blue { background: #0d2244; color: #6aaeff; }
-    .doc-badge.amber { background: #332500; color: #f5c060; }
-  }
-  .upload-btn { margin: 10px 12px; padding: 7px; border: 0.5px dashed var(--border); border-radius: var(--r); font-size: 11px; color: var(--text2); cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; background: none; }
-  .upload-btn:hover { border-color: var(--accent); color: var(--accent); }
-  /* MAIN PANELS */
-  .panels { flex: 1; display: flex; overflow: hidden; }
-  /* DOC VIEWER */
-  .doc-view { width: 45%; border-right: 0.5px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
-  .panel-header { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--surface); border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
-  .panel-title { font-size: 12px; font-weight: 500; color: var(--text); }
-  .panel-sub { font-size: 11px; color: var(--text2); margin-left: auto; }
-  .doc-content { flex: 1; overflow-y: auto; padding: 16px; }
-  .doc-page { background: white; border: 0.5px solid #d0d0d0; border-radius: 6px; padding: 20px 24px; margin-bottom: 12px; font-size: 12px; color: #333; line-height: 1.7; }
-  @media (prefers-color-scheme: dark) {
-    .doc-page { background: #1e2535; border-color: #2e3545; color: #c0c8d8; }
-  }
-  .doc-page h4 { font-size: 11px; font-weight: 500; margin-bottom: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
-  .highlight { background: rgba(245,166,35,0.25); border-radius: 2px; cursor: pointer; border-bottom: 1.5px solid #f5a623; }
-  .highlight:hover { background: rgba(245,166,35,0.4); }
-  .highlight.blue { background: rgba(42,127,255,0.15); border-bottom-color: #2a7fff; }
-  .highlight.green { background: rgba(0,200,160,0.15); border-bottom-color: #00c8a0; }
-  .evidence-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 9px; font-weight: 500; padding: 1px 5px; border-radius: 3px; vertical-align: middle; margin-left: 3px; cursor: pointer; }
-  .evidence-tag.e1 { background: rgba(245,166,35,0.2); color: #a07010; }
-  .evidence-tag.e2 { background: rgba(42,127,255,0.15); color: #1a60c0; }
-  .evidence-tag.e3 { background: rgba(0,200,160,0.15); color: #006b55; }
-  @media (prefers-color-scheme: dark) {
-    .evidence-tag.e1 { color: #f5c060; }
-    .evidence-tag.e2 { color: #6aaeff; }
-    .evidence-tag.e3 { color: #30d8b0; }
-  }
-  /* TRACE PANEL */
-  .trace-panel { width: 22%; border-right: 0.5px solid var(--border); display: flex; flex-direction: column; overflow: hidden; background: var(--surface); }
-  .trace-content { flex: 1; overflow-y: auto; padding: 10px; }
-  .trace-card { border: 0.5px solid var(--border); border-radius: var(--r); padding: 8px 10px; margin-bottom: 8px; cursor: pointer; transition: border-color .1s; }
-  .trace-card:hover { border-color: var(--accent); }
-  .trace-card.active { border-color: #2a7fff; background: rgba(42,127,255,0.05); }
-  .trace-step { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 6px; font-size: 11px; }
-  .trace-num { width: 16px; height: 16px; border-radius: 50%; background: #2a7fff; color: white; font-size: 9px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
-  .trace-num.done { background: #00c8a0; }
-  .trace-num.warn { background: #f5a623; }
-  .trace-label { color: var(--text); line-height: 1.4; }
-  .trace-source { font-size: 10px; color: var(--text2); margin-top: 2px; }
-  .conf-bar { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
-  .conf-track { flex: 1; height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
-  .conf-fill { height: 100%; border-radius: 2px; }
-  .conf-label { font-size: 10px; color: var(--text2); min-width: 30px; }
-  /* OUTPUT PANEL */
-  .output-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
-  .output-content { flex: 1; overflow-y: auto; padding: 16px; }
-  .out-section { margin-bottom: 18px; }
-  .out-h1 { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; }
-  .out-h2 { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 5px; margin-top: 10px; }
-  .out-p { font-size: 12px; color: var(--text2); line-height: 1.7; margin-bottom: 8px; }
-  .source-chip { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; padding: 1px 6px; border-radius: 4px; border: 0.5px solid var(--border); background: var(--surface2); color: var(--text2); margin: 1px 2px; cursor: pointer; vertical-align: middle; }
-  .source-chip:hover { border-color: var(--accent); color: var(--accent); }
-  .source-chip i { font-size: 11px; }
-  .value-block { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 10px 0; }
-  .value-card { background: var(--surface2); border-radius: var(--r); padding: 10px 12px; border: 0.5px solid var(--border); }
-  .value-label { font-size: 10px; color: var(--text2); margin-bottom: 3px; }
-  .value-num { font-size: 18px; font-weight: 500; color: var(--text); }
-  .value-sub { font-size: 10px; color: var(--text2); }
-  .range-bar { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 11px; }
-  .range-track { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; position: relative; }
-  .range-fill { position: absolute; left: 20%; right: 18%; height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 3px; }
-  .range-dot { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 10px; height: 10px; border-radius: 50%; background: white; border: 2px solid var(--accent); }
-  .flag { display: flex; align-items: flex-start; gap: 6px; padding: 7px 10px; border-radius: var(--r); margin-bottom: 6px; font-size: 11px; }
-  .flag.warn { background: rgba(245,166,35,0.1); border: 0.5px solid rgba(245,166,35,0.3); }
-  .flag.ok { background: rgba(0,200,160,0.08); border: 0.5px solid rgba(0,200,160,0.25); }
-  .flag i { font-size: 14px; flex-shrink: 0; margin-top: 0px; }
-  .flag.warn i { color: var(--gold); }
-  .flag.ok i { color: var(--accent2); }
-  .flag-text { color: var(--text2); line-height: 1.5; }
-  .out-actions { display: flex; gap: 8px; padding: 10px 16px; border-top: 0.5px solid var(--border); flex-shrink: 0; background: var(--surface); }
-  .btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; border-radius: var(--r); font-size: 12px; cursor: pointer; border: 0.5px solid var(--border); background: var(--surface2); color: var(--text); transition: background .1s; }
-  .btn:hover { background: var(--surface); }
-  .btn.primary { background: #2a7fff; color: white; border-color: #2a7fff; }
-  .btn.primary:hover { background: #1a6fee; }
-  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); display: inline-block; }
-  .ai-badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; background: rgba(42,127,255,0.12); color: #2a7fff; font-weight: 500; }
-  /* Scrollbar */
-  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
-  .active-screen { display: flex; flex: 1; overflow: hidden; }
-  .hidden-screen { display: none; }
-  .section-num { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: var(--surface2); border: 0.5px solid var(--border); font-size: 10px; font-weight: 500; color: var(--text2); }
-</style>
+    :root {
+      --accent:   #2a7fff;
+      --accent2:  #00c8a0;
+      --gold:     #f5a623;
+      --red:      #e24b4a;
 
-<div class="app" role="main" aria-label="TransferIQ SaaS platform mockup">
-  <h2 class="sr-only">TransferIQ — AI-powered transfer pricing document analysis platform</h2>
-  <!-- TOP BAR -->
-  <div class="topbar">
-    <div class="logo">Transfer<span>IQ</span></div>
-    <div class="project-badge"><i class="ti ti-building" aria-hidden="true"></i> Siemens AG · FY2024</div>
-    <div style="flex:1"></div>
-    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)">
-      <span class="status-dot"></span> AI analysis complete
+      --bg:       #f4f5f7;
+      --surface:  #ffffff;
+      --surface2: #f0f1f4;
+      --surface3: #e8eaee;
+
+      --text:     #1a1c22;
+      --text2:    #5a5f70;
+      --text3:    #9098ab;
+
+      --border:   rgba(0,0,0,0.08);
+      --border2:  rgba(0,0,0,0.14);
+
+      --r:  8px;
+      --r2: 12px;
+      --r3: 16px;
+
+      --font: 'Inter', system-ui, sans-serif;
+      --mono: 'JetBrains Mono', monospace;
+
+      --shadow-sm: 0 1px 3px rgba(0,0,0,0.06), 0 1px 2px rgba(0,0,0,0.04);
+      --shadow:    0 4px 12px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04);
+      --shadow-lg: 0 12px 40px rgba(0,0,0,0.12), 0 4px 12px rgba(0,0,0,0.06);
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root {
+        --bg:       #0d1117;
+        --surface:  #161b24;
+        --surface2: #1e2535;
+        --surface3: #252f42;
+
+        --text:     #e2e8f0;
+        --text2:    #8896b0;
+        --text3:    #4a5568;
+
+        --border:   rgba(255,255,255,0.07);
+        --border2:  rgba(255,255,255,0.12);
+
+        --shadow-sm: 0 1px 3px rgba(0,0,0,0.3);
+        --shadow:    0 4px 12px rgba(0,0,0,0.4);
+        --shadow-lg: 0 12px 40px rgba(0,0,0,0.5);
+      }
+    }
+
+    html, body {
+      height: 100%;
+      font-family: var(--font);
+      font-size: 13px;
+      line-height: 1.5;
+      color: var(--text);
+      background: var(--bg);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ─── LAYOUT ─── */
+    .app {
+      display: flex;
+      flex-direction: column;
+      height: 100vh;
+      min-height: 600px;
+      overflow: hidden;
+    }
+
+    /* ─── TOPBAR ─── */
+    .topbar {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 0 20px;
+      height: 52px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+      box-shadow: var(--shadow-sm);
+      z-index: 100;
+    }
+
+    .logo {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--text);
+      letter-spacing: -0.5px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .logo-icon {
+      width: 28px; height: 28px;
+      background: var(--accent);
+      border-radius: 7px;
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: -1px;
+      flex-shrink: 0;
+    }
+    .logo span { color: var(--accent); }
+
+    .divider-v { width: 1px; height: 20px; background: var(--border2); margin: 0 4px; }
+
+    .project-badge {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 4px 12px;
+      font-size: 12px;
+      color: var(--text2);
+      cursor: pointer;
+    }
+    .project-badge:hover { border-color: var(--border2); }
+
+    .topbar-status {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      font-size: 12px;
+      color: var(--text2);
+    }
+    .status-dot {
+      width: 7px; height: 7px;
+      border-radius: 50%;
+      background: var(--accent2);
+      animation: pulse 2.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0%,100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .topbar-right { display: flex; align-items: center; gap: 8px; margin-left: auto; }
+
+    /* Tab navigation */
+    .tabs {
+      display: flex;
+      background: var(--surface2);
+      border-radius: var(--r);
+      padding: 3px;
+      gap: 2px;
+    }
+    .tab {
+      padding: 5px 16px;
+      border-radius: 6px;
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text2);
+      cursor: pointer;
+      border: none;
+      background: transparent;
+      font-family: var(--font);
+      transition: all .15s;
+    }
+    .tab:hover { color: var(--text); }
+    .tab.active {
+      background: var(--surface);
+      color: var(--text);
+      box-shadow: var(--shadow-sm);
+    }
+
+    .avatar {
+      width: 30px; height: 30px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea, #764ba2);
+      display: flex; align-items: center; justify-content: center;
+      color: white;
+      font-size: 11px;
+      font-weight: 600;
+      cursor: pointer;
+      flex-shrink: 0;
+    }
+
+    /* ─── MAIN ─── */
+    .main {
+      display: flex;
+      flex: 1;
+      overflow: hidden;
+    }
+
+    /* ─── SIDEBAR ─── */
+    .sidebar {
+      width: 210px;
+      flex-shrink: 0;
+      border-right: 1px solid var(--border);
+      background: var(--surface);
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .sidebar-section {
+      padding: 14px 14px 5px;
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text3);
+      text-transform: uppercase;
+      letter-spacing: 0.09em;
+    }
+
+    .sidebar-item {
+      display: flex;
+      align-items: center;
+      gap: 9px;
+      padding: 7px 14px;
+      font-size: 12.5px;
+      color: var(--text2);
+      cursor: pointer;
+      border-left: 2px solid transparent;
+      transition: all .1s;
+      text-decoration: none;
+    }
+    .sidebar-item:hover { color: var(--text); background: var(--surface2); }
+    .sidebar-item.active {
+      color: var(--text);
+      border-left-color: var(--accent);
+      background: var(--surface2);
+      font-weight: 500;
+    }
+    .sidebar-item i { font-size: 16px; flex-shrink: 0; }
+
+    .sidebar-divider { height: 1px; background: var(--border); margin: 8px 0; }
+
+    /* Doc list in sidebar */
+    .doc-list { overflow-y: auto; flex-shrink: 0; }
+    .doc-item {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      padding: 5px 14px;
+      font-size: 11px;
+      color: var(--text2);
+      cursor: pointer;
+      transition: background .1s;
+    }
+    .doc-item:hover { background: var(--surface2); color: var(--text); }
+    .doc-item i { font-size: 14px; flex-shrink: 0; }
+    .doc-name {
+      flex: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .doc-badge {
+      font-size: 9px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      flex-shrink: 0;
+    }
+    .doc-badge.green  { background: #d4f5e3; color: #0e6634; }
+    .doc-badge.amber  { background: #fef3d7; color: #8a5f10; }
+    .doc-badge.blue   { background: #ddeeff; color: #1050a0; }
+    @media (prefers-color-scheme: dark) {
+      .doc-badge.green  { background: #0c2e1c; color: #3ed47c; }
+      .doc-badge.amber  { background: #2e2000; color: #f0c060; }
+      .doc-badge.blue   { background: #0a1e40; color: #70b0ff; }
+    }
+
+    .upload-btn {
+      margin: 10px 12px;
+      padding: 8px;
+      border: 1.5px dashed var(--border2);
+      border-radius: var(--r);
+      font-size: 11.5px;
+      font-family: var(--font);
+      color: var(--text2);
+      cursor: pointer;
+      text-align: center;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      background: none;
+      transition: all .15s;
+    }
+    .upload-btn:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+      background: rgba(42,127,255,0.04);
+    }
+
+    .progress-footer {
+      padding: 12px 14px;
+      font-size: 11px;
+      color: var(--text2);
+      border-top: 1px solid var(--border);
+      margin-top: auto;
+    }
+    .progress-footer .label { margin-bottom: 5px; display: flex; justify-content: space-between; }
+    .progress-track {
+      height: 4px;
+      background: var(--surface3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--accent2), var(--accent));
+      border-radius: 2px;
+      transition: width 1s ease;
+    }
+
+    /* ─── PANEL SHELL ─── */
+    .panels {
+      flex: 1;
+      display: flex;
+      overflow: hidden;
+    }
+
+    .panel {
+      display: flex;
+      flex-direction: column;
+      overflow: hidden;
+    }
+
+    .panel-header {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 0 14px;
+      height: 42px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .panel-title {
+      font-size: 12px;
+      font-weight: 500;
+      color: var(--text);
+    }
+    .panel-sub { font-size: 11px; color: var(--text3); margin-left: auto; }
+
+    .ai-badge {
+      font-size: 9px;
+      font-weight: 600;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: rgba(42,127,255,0.12);
+      color: var(--accent);
+      letter-spacing: 0.03em;
+    }
+
+    /* ─── DOC VIEWER PANEL ─── */
+    .doc-panel { width: 42%; border-right: 1px solid var(--border); background: var(--surface2); }
+    .doc-panel .panel-header { background: var(--surface); }
+
+    .doc-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .doc-toolbar button {
+      display: flex; align-items: center; gap: 4px;
+      padding: 4px 10px;
+      border: 1px solid var(--border);
+      border-radius: 6px;
+      font-size: 11px;
+      font-family: var(--font);
+      color: var(--text2);
+      background: var(--surface);
+      cursor: pointer;
+      transition: all .1s;
+    }
+    .doc-toolbar button:hover { color: var(--text); border-color: var(--border2); }
+    .doc-toolbar button i { font-size: 13px; }
+    .doc-toolbar .page-nav { display: flex; align-items: center; gap: 6px; margin-left: auto; font-size: 11px; color: var(--text2); }
+
+    .doc-content { flex: 1; overflow-y: auto; padding: 16px; }
+
+    .doc-page {
+      background: white;
+      border: 1px solid #d8dce4;
+      border-radius: 6px;
+      padding: 22px 26px;
+      margin-bottom: 14px;
+      box-shadow: var(--shadow-sm);
+      font-size: 12px;
+      color: #2a2d36;
+      line-height: 1.75;
+    }
+    @media (prefers-color-scheme: dark) {
+      .doc-page { background: #1a2030; border-color: #2a3248; color: #b8c4d8; }
+    }
+
+    .doc-page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 12px;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #e8eaee;
+    }
+    @media (prefers-color-scheme: dark) {
+      .doc-page-header { border-bottom-color: #2a3248; }
+    }
+    .doc-page-header h4 {
+      font-size: 10px;
+      font-weight: 600;
+      color: #888;
+      text-transform: uppercase;
+      letter-spacing: 0.07em;
+    }
+    .doc-page-header .page-num {
+      font-size: 10px;
+      color: #aaa;
+      font-family: var(--mono);
+    }
+
+    /* Highlight types */
+    .hl {
+      cursor: pointer;
+      border-radius: 2px;
+      border-bottom: 1.5px solid;
+      padding: 0 1px;
+      transition: background .1s;
+    }
+    .hl.amber { background: rgba(245,166,35,0.18); border-bottom-color: #f5a623; }
+    .hl.amber:hover { background: rgba(245,166,35,0.32); }
+    .hl.blue  { background: rgba(42,127,255,0.12); border-bottom-color: #2a7fff; }
+    .hl.blue:hover  { background: rgba(42,127,255,0.22); }
+    .hl.green { background: rgba(0,200,160,0.12); border-bottom-color: #00c8a0; }
+    .hl.green:hover { background: rgba(0,200,160,0.22); }
+
+    /* Evidence tags */
+    .etag {
+      display: inline-flex;
+      align-items: center;
+      gap: 2px;
+      font-size: 9px;
+      font-weight: 600;
+      padding: 1px 5px;
+      border-radius: 3px;
+      vertical-align: middle;
+      margin-left: 3px;
+      cursor: pointer;
+      font-family: var(--mono);
+      letter-spacing: 0;
+    }
+    .etag.e-rate  { background: rgba(245,166,35,0.18);  color: #9a7012; }
+    .etag.e-meth  { background: rgba(42,127,255,0.14);  color: #1a58b0; }
+    .etag.e-comp  { background: rgba(0,200,160,0.14);   color: #0a7060; }
+    @media (prefers-color-scheme: dark) {
+      .etag.e-rate  { color: #e0a040; }
+      .etag.e-meth  { color: #60a8ff; }
+      .etag.e-comp  { color: #20d0a8; }
+    }
+
+    .evidence-legend {
+      display: flex;
+      gap: 8px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      padding-top: 10px;
+      border-top: 1px dashed var(--border2);
+    }
+    .evidence-legend span { font-size: 10px; color: var(--text2); }
+
+    /* ─── TRACE PANEL ─── */
+    .trace-panel { width: 22%; border-right: 1px solid var(--border); background: var(--surface); }
+    .trace-content { flex: 1; overflow-y: auto; padding: 10px; }
+
+    .trace-intro {
+      font-size: 11px;
+      color: var(--text3);
+      padding: 4px 2px 10px;
+      line-height: 1.5;
+    }
+
+    .trace-card {
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 10px 11px;
+      margin-bottom: 9px;
+      cursor: pointer;
+      transition: all .15s;
+      background: var(--surface);
+    }
+    .trace-card:hover { border-color: var(--border2); box-shadow: var(--shadow-sm); }
+    .trace-card.active {
+      border-color: rgba(42,127,255,0.5);
+      background: rgba(42,127,255,0.04);
+      box-shadow: 0 0 0 3px rgba(42,127,255,0.08);
+    }
+
+    .trace-card-title {
+      font-size: 11px;
+      font-weight: 500;
+      color: var(--text);
+      margin-bottom: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .trace-step {
+      display: flex;
+      align-items: flex-start;
+      gap: 7px;
+      margin-bottom: 7px;
+      font-size: 11px;
+    }
+    .trace-num {
+      width: 17px; height: 17px;
+      border-radius: 50%;
+      font-size: 9px;
+      font-weight: 600;
+      display: flex; align-items: center; justify-content: center;
+      flex-shrink: 0;
+      margin-top: 1px;
+    }
+    .trace-num.done { background: var(--accent2); color: white; }
+    .trace-num.warn { background: var(--gold); color: white; }
+    .trace-num.info { background: var(--accent); color: white; }
+
+    .trace-label { color: var(--text); line-height: 1.4; }
+    .trace-source { font-size: 10px; color: var(--text3); margin-top: 2px; font-family: var(--mono); }
+
+    .conf-row {
+      display: flex;
+      align-items: center;
+      gap: 7px;
+      margin-top: 8px;
+      padding-top: 7px;
+      border-top: 1px solid var(--border);
+    }
+    .conf-label { font-size: 10px; color: var(--text3); min-width: 28px; }
+    .conf-track {
+      flex: 1;
+      height: 3px;
+      background: var(--surface3);
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .conf-fill { height: 100%; border-radius: 2px; }
+    .conf-pct { font-size: 10px; color: var(--text2); font-weight: 500; min-width: 28px; text-align: right; font-family: var(--mono); }
+
+    /* ─── OUTPUT PANEL ─── */
+    .output-panel { flex: 1; background: var(--surface2); }
+    .output-panel .panel-header { background: var(--surface); }
+
+    .out-toolbar {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 14px;
+      background: var(--surface);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .out-toolbar .toolbar-label {
+      font-size: 11px;
+      color: var(--text3);
+      margin-right: 4px;
+    }
+    .section-pill {
+      padding: 3px 10px;
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      font-size: 11px;
+      color: var(--text2);
+      cursor: pointer;
+      background: var(--surface);
+      font-family: var(--font);
+      transition: all .1s;
+    }
+    .section-pill.active {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+    }
+    .section-pill:hover:not(.active) { border-color: var(--border2); color: var(--text); }
+
+    .output-content { flex: 1; overflow-y: auto; padding: 20px 22px; }
+
+    .out-section { margin-bottom: 24px; }
+
+    .out-h1 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 10px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .section-num {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 20px; height: 20px;
+      border-radius: 50%;
+      background: var(--surface3);
+      border: 1px solid var(--border2);
+      font-size: 10px;
+      font-weight: 600;
+      color: var(--text2);
+      flex-shrink: 0;
+    }
+
+    .out-h2 {
+      font-size: 12.5px;
+      font-weight: 600;
+      color: var(--text);
+      margin-bottom: 6px;
+      margin-top: 14px;
+    }
+
+    .out-p {
+      font-size: 12.5px;
+      color: var(--text2);
+      line-height: 1.8;
+      margin-bottom: 10px;
+    }
+    .out-p strong { color: var(--text); font-weight: 600; }
+
+    /* Source citation chips */
+    .src-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 3px;
+      font-size: 10px;
+      padding: 2px 7px;
+      border-radius: 4px;
+      border: 1px solid var(--border2);
+      background: var(--surface);
+      color: var(--text2);
+      margin: 0 2px;
+      cursor: pointer;
+      vertical-align: middle;
+      font-family: var(--mono);
+      transition: all .1s;
+      text-decoration: none;
+    }
+    .src-chip:hover { border-color: var(--accent); color: var(--accent); }
+    .src-chip i { font-size: 11px; }
+
+    /* Metrics grid */
+    .metrics-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 9px;
+      margin: 12px 0;
+    }
+    .metric-card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--r);
+      padding: 11px 13px;
+      box-shadow: var(--shadow-sm);
+    }
+    .metric-label { font-size: 10px; color: var(--text3); margin-bottom: 4px; font-weight: 500; }
+    .metric-value { font-size: 20px; font-weight: 600; color: var(--text); line-height: 1.2; }
+    .metric-sub { font-size: 10px; color: var(--text3); margin-top: 2px; }
+
+    /* Range visualisation */
+    .range-visual {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 10px 0;
+      font-size: 11px;
+    }
+    .range-val { font-weight: 500; color: var(--text2); min-width: 32px; font-family: var(--mono); }
+    .range-track {
+      flex: 1;
+      height: 8px;
+      background: var(--surface3);
+      border-radius: 4px;
+      position: relative;
+    }
+    .range-fill {
+      position: absolute;
+      left: 20%; right: 18%;
+      height: 100%;
+      background: linear-gradient(90deg, rgba(0,200,160,0.4), rgba(42,127,255,0.4));
+      border-radius: 4px;
+    }
+    .range-median {
+      position: absolute;
+      left: 50%; top: 50%;
+      transform: translate(-50%, -50%);
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      background: white;
+      border: 2.5px solid var(--accent);
+      box-shadow: 0 1px 4px rgba(42,127,255,0.3);
+    }
+    .range-legend {
+      display: flex;
+      gap: 12px;
+      font-size: 10px;
+      color: var(--text3);
+      margin-top: 4px;
+    }
+    .range-legend span { display: flex; align-items: center; gap: 4px; }
+
+    /* Flags */
+    .flag {
+      display: flex;
+      align-items: flex-start;
+      gap: 9px;
+      padding: 10px 12px;
+      border-radius: var(--r);
+      margin-bottom: 8px;
+      font-size: 12px;
+      line-height: 1.6;
+    }
+    .flag.warn {
+      background: rgba(245,166,35,0.08);
+      border: 1px solid rgba(245,166,35,0.25);
+    }
+    .flag.ok {
+      background: rgba(0,200,160,0.07);
+      border: 1px solid rgba(0,200,160,0.22);
+    }
+    .flag.info {
+      background: rgba(42,127,255,0.07);
+      border: 1px solid rgba(42,127,255,0.2);
+    }
+    .flag i { font-size: 16px; flex-shrink: 0; margin-top: 1px; }
+    .flag.warn i { color: var(--gold); }
+    .flag.ok   i { color: var(--accent2); }
+    .flag.info i { color: var(--accent); }
+    .flag-text { color: var(--text2); }
+
+    /* Output actions */
+    .out-actions {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 16px;
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+      background: var(--surface);
+    }
+
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 7px 14px;
+      border-radius: var(--r);
+      font-size: 12px;
+      font-weight: 500;
+      font-family: var(--font);
+      cursor: pointer;
+      border: 1px solid var(--border2);
+      background: var(--surface2);
+      color: var(--text2);
+      transition: all .15s;
+      white-space: nowrap;
+    }
+    .btn:hover { background: var(--surface3); color: var(--text); border-color: var(--border2); }
+    .btn i { font-size: 15px; }
+
+    .btn.primary {
+      background: var(--accent);
+      color: white;
+      border-color: var(--accent);
+      box-shadow: 0 2px 8px rgba(42,127,255,0.3);
+    }
+    .btn.primary:hover { background: #1a6fee; box-shadow: 0 4px 12px rgba(42,127,255,0.4); }
+
+    .btn.danger { color: var(--red); }
+    .btn.danger:hover { background: rgba(226,75,74,0.08); border-color: rgba(226,75,74,0.3); }
+
+    /* ─── SCROLLBARS ─── */
+    ::-webkit-scrollbar { width: 5px; height: 5px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--surface3); border-radius: 3px; }
+    ::-webkit-scrollbar-thumb:hover { background: var(--border2); }
+
+    /* ─── TOOLTIP ─── */
+    [data-tip] { position: relative; }
+    [data-tip]:hover::after {
+      content: attr(data-tip);
+      position: absolute;
+      bottom: calc(100% + 5px);
+      left: 50%; transform: translateX(-50%);
+      background: #1a1c22;
+      color: white;
+      font-size: 11px;
+      padding: 4px 8px;
+      border-radius: 5px;
+      white-space: nowrap;
+      z-index: 200;
+      pointer-events: none;
+    }
+
+    /* ─── NOTIFICATION TOAST ─── */
+    .toast {
+      position: fixed;
+      bottom: 20px;
+      right: 20px;
+      background: var(--text);
+      color: var(--bg);
+      padding: 10px 16px;
+      border-radius: var(--r);
+      font-size: 12px;
+      box-shadow: var(--shadow-lg);
+      transform: translateY(60px);
+      opacity: 0;
+      transition: all .3s cubic-bezier(0.34, 1.56, 0.64, 1);
+      z-index: 999;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    .toast.show { transform: translateY(0); opacity: 1; }
+
+    /* ─── ACTIVE TRACE HIGHLIGHT ─── */
+    .trace-card.just-activated {
+      animation: traceFlash .4s ease;
+    }
+    @keyframes traceFlash {
+      0% { transform: scale(1.02); }
+      100% { transform: scale(1); }
+    }
+
+    /* ─── RESPONSIVE ─── */
+    @media (max-width: 900px) {
+      .trace-panel { display: none; }
+      .doc-panel { width: 46%; }
+    }
+    @media (max-width: 680px) {
+      .doc-panel { display: none; }
+      .output-panel { width: 100%; }
+      .sidebar { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="app">
+
+  <!-- ═══ TOP BAR ═══ -->
+  <header class="topbar">
+    <div class="logo">
+      <div class="logo-icon">TQ</div>
+      Transfer<span>IQ</span>
     </div>
-    <div class="tabs">
-      <button class="tab active" onclick="switchTab(this,'analysis')">Analysis</button>
-      <button class="tab" onclick="switchTab(this,'output')">Output</button>
-      <button class="tab" onclick="switchTab(this,'review')">Review</button>
+
+    <div class="divider-v"></div>
+
+    <div class="project-badge">
+      <i class="ti ti-building" style="font-size:14px"></i>
+      Siemens AG &middot; FY 2024
+      <i class="ti ti-chevron-down" style="font-size:12px;margin-left:2px"></i>
     </div>
-  </div>
+
+    <div class="topbar-right">
+      <div class="topbar-status">
+        <span class="status-dot"></span>
+        AI analysis complete &mdash; 82%
+      </div>
+
+      <div class="divider-v"></div>
+
+      <div class="tabs">
+        <button class="tab active" onclick="switchTab(this)">Analysis</button>
+        <button class="tab" onclick="switchTab(this)">Output</button>
+        <button class="tab" onclick="switchTab(this)">Review</button>
+        <button class="tab" onclick="switchTab(this)">Audit</button>
+      </div>
+
+      <button class="btn" style="padding:5px 10px;gap:4px" title="Settings">
+        <i class="ti ti-bell" style="font-size:16px"></i>
+      </button>
+
+      <div class="avatar" title="Markus R.">MR</div>
+    </div>
+  </header>
 
   <div class="main">
-    <!-- SIDEBAR -->
-    <div class="sidebar">
+
+    <!-- ═══ SIDEBAR ═══ -->
+    <nav class="sidebar">
       <div class="sidebar-section">Workspace</div>
-      <div class="sidebar-item active"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Analysis</div>
-      <div class="sidebar-item"><i class="ti ti-file-text" aria-hidden="true"></i> Master File</div>
-      <div class="sidebar-item"><i class="ti ti-file" aria-hidden="true"></i> Local File</div>
-      <div class="sidebar-item"><i class="ti ti-chart-bar" aria-hidden="true"></i> Benchmarking</div>
-      <div class="sidebar-item"><i class="ti ti-history" aria-hidden="true"></i> Audit Trail</div>
-      <div style="height:1px;background:var(--border);margin:8px 0"></div>
+      <a class="sidebar-item active"><i class="ti ti-layout-dashboard"></i> Analysis</a>
+      <a class="sidebar-item"><i class="ti ti-file-text"></i> Master File</a>
+      <a class="sidebar-item"><i class="ti ti-file"></i> Local File</a>
+      <a class="sidebar-item"><i class="ti ti-chart-bar"></i> Benchmarking</a>
+      <a class="sidebar-item"><i class="ti ti-scale"></i> Arm's Length Test</a>
+      <a class="sidebar-item"><i class="ti ti-history"></i> Audit Trail</a>
+
+      <div class="sidebar-divider"></div>
       <div class="sidebar-section">Source Documents</div>
-      <div class="doc-item"><i class="ti ti-file-text" aria-hidden="true" style="font-size:13px"></i> <span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">interco_agreement_2024.pdf</span> <span class="doc-badge green">✓</span></div>
-      <div class="doc-item"><i class="ti ti-file-spreadsheet" aria-hidden="true" style="font-size:13px"></i> <span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">financials_Q1-Q4.xlsx</span> <span class="doc-badge green">✓</span></div>
-      <div class="doc-item"><i class="ti ti-presentation" aria-hidden="true" style="font-size:13px"></i> <span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">management_deck_2024.pptx</span> <span class="doc-badge green">✓</span></div>
-      <div class="doc-item"><i class="ti ti-file-text" aria-hidden="true" style="font-size:13px"></i> <span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">royalty_contracts.pdf</span> <span class="doc-badge green">✓</span></div>
-      <div class="doc-item"><i class="ti ti-file" aria-hidden="true" style="font-size:13px"></i> <span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">invoices_batch_47.zip</span> <span class="doc-badge amber">→</span></div>
-      <button class="upload-btn"><i class="ti ti-upload" aria-hidden="true"></i> Upload documents</button>
-      <div style="flex:1"></div>
-      <div style="padding:10px 12px;font-size:11px;color:var(--text2);border-top:0.5px solid var(--border)">
-        <div style="margin-bottom:4px">Analysis progress</div>
-        <div style="height:4px;background:var(--surface2);border-radius:2px;overflow:hidden"><div style="width:82%;height:100%;background:#2a7fff;border-radius:2px"></div></div>
-        <div style="margin-top:3px">82% · 3 items pending</div>
-      </div>
-    </div>
 
-    <!-- MAIN PANELS - ANALYSIS VIEW -->
-    <div class="panels active-screen" id="screen-analysis">
-      <!-- DOC VIEWER -->
-      <div class="doc-view">
-        <div class="panel-header">
-          <i class="ti ti-file-text" aria-hidden="true" style="font-size:14px;color:var(--text2)"></i>
-          <span class="panel-title">interco_agreement_2024.pdf</span>
-          <span class="panel-sub">p. 4 of 18</span>
+      <div class="doc-list">
+        <div class="doc-item" onclick="activateDoc(this, 'Intercompany Agreement')">
+          <i class="ti ti-file-text"></i>
+          <span class="doc-name">interco_agreement_2024.pdf</span>
+          <span class="doc-badge green">✓</span>
         </div>
+        <div class="doc-item" onclick="activateDoc(this, 'Financials Q1–Q4')">
+          <i class="ti ti-file-spreadsheet"></i>
+          <span class="doc-name">financials_Q1-Q4.xlsx</span>
+          <span class="doc-badge green">✓</span>
+        </div>
+        <div class="doc-item" onclick="activateDoc(this, 'Management Deck')">
+          <i class="ti ti-presentation"></i>
+          <span class="doc-name">management_deck_2024.pptx</span>
+          <span class="doc-badge green">✓</span>
+        </div>
+        <div class="doc-item" onclick="activateDoc(this, 'Royalty Contracts')">
+          <i class="ti ti-file-text"></i>
+          <span class="doc-name">royalty_contracts.pdf</span>
+          <span class="doc-badge green">✓</span>
+        </div>
+        <div class="doc-item" onclick="activateDoc(this, 'Invoice Batch 47')">
+          <i class="ti ti-file-zip"></i>
+          <span class="doc-name">invoices_batch_47.zip</span>
+          <span class="doc-badge amber">→</span>
+        </div>
+        <div class="doc-item" onclick="activateDoc(this, 'Transfer Pricing Study')">
+          <i class="ti ti-file-text"></i>
+          <span class="doc-name">tp_study_benchmarks.pdf</span>
+          <span class="doc-badge blue">AI</span>
+        </div>
+      </div>
+
+      <button class="upload-btn" onclick="showToast('Drop zone activated — drag your files here')">
+        <i class="ti ti-upload" style="font-size:15px"></i>
+        Upload documents
+      </button>
+
+      <div class="progress-footer">
+        <div class="label">
+          <span>Analysis progress</span>
+          <span style="font-family:var(--mono);color:var(--accent)">82%</span>
+        </div>
+        <div class="progress-track">
+          <div class="progress-fill" style="width:82%"></div>
+        </div>
+        <div style="margin-top:5px;font-size:10px;color:var(--text3)">3 items pending &middot; ~4 min remaining</div>
+      </div>
+    </nav>
+
+    <!-- ═══ PANELS ═══ -->
+    <div class="panels">
+
+      <!-- ── DOC VIEWER ── -->
+      <div class="panel doc-panel">
+        <div class="panel-header">
+          <i class="ti ti-file-text" style="font-size:15px;color:var(--text2)"></i>
+          <span class="panel-title" id="doc-title">interco_agreement_2024.pdf</span>
+          <span class="panel-sub">18 pages · 47 extractions</span>
+        </div>
+
+        <div class="doc-toolbar">
+          <button data-tip="Previous page"><i class="ti ti-chevron-left"></i></button>
+          <button data-tip="Next page"><i class="ti ti-chevron-right"></i></button>
+          <button onclick="showToast('Opening search…')"><i class="ti ti-search"></i> Search</button>
+          <button onclick="showToast('All highlights shown')"><i class="ti ti-highlight"></i> Highlights</button>
+          <div class="page-nav">
+            <i class="ti ti-file" style="font-size:13px"></i>
+            Page <strong>4</strong> of 18
+          </div>
+        </div>
+
         <div class="doc-content">
-          <div class="doc-page">
-            <h4>3.1 Service Fees — Technology Licensing</h4>
-            <p>The Licensor (Siemens AG, Germany) shall charge the Licensee (Siemens Ltd., Singapore) a <span class="highlight" title="Click to see where this maps in output">royalty rate of <strong>5.5% of net revenue</strong></span><span class="evidence-tag e1">§TP-R1</span> for use of the EW-500 industrial software platform. The rate is determined based on the <span class="highlight blue">comparable uncontrolled price (CUP) method</span><span class="evidence-tag e2">§TP-M1</span>, referencing third-party licenses entered into by the Licensor between 2021 and 2023.</p>
 
-            <p style="margin-top:10px">Payment terms are net-60 from invoice date. The parties agree that the royalty rate shall be reviewed every <span class="highlight green">two fiscal years</span><span class="evidence-tag e3">§TP-C1</span> or following a material change in business circumstances, including but not limited to restructuring, significant revenue changes exceeding 20%, or regulatory changes.</p>
-
-            <p style="margin-top:10px">For the avoidance of doubt, the royalty base shall be defined as gross revenue less returns, discounts, and applicable taxes. Documentation under OECD BEPS Action 13 requirements must be maintained contemporaneously.</p>
-          </div>
           <div class="doc-page">
-            <h4>3.2 Management Services</h4>
-            <p>Corporate management services shall be allocated using the <span class="highlight" title="Cost allocation basis">cost-plus method</span><span class="evidence-tag e1">§TP-M2</span> with a markup of <span class="highlight"><strong>8.0–12.5%</strong></span><span class="evidence-tag e1">§TP-R2</span> over fully loaded costs. Allocation keys are headcount (40%), revenue (35%), and asset base (25%).</p>
+            <div class="doc-page-header">
+              <h4>§ 3.1 &mdash; Service Fees: Technology Licensing</h4>
+              <span class="page-num">p. 4</span>
+            </div>
+
+            <p>The Licensor (Siemens AG, Germany) shall charge the Licensee (Siemens Ltd., Singapore) a
+            <span class="hl amber" onclick="activateTrace('rate')" data-tip="Maps to §TP-R1 — Rate reference">royalty rate of <strong>5.5% of net revenue</strong></span><span class="etag e-rate">§TP-R1</span>
+            for use of the EW-500 industrial software platform. The rate is determined based on the
+            <span class="hl blue" onclick="activateTrace('method')" data-tip="Maps to §TP-M1 — Method reference">comparable uncontrolled price (CUP) method</span><span class="etag e-meth">§TP-M1</span>,
+            referencing third-party licenses entered into by the Licensor between 2021 and 2023.</p>
+
+            <p style="margin-top:12px">Payment terms are net-60 from invoice date. The parties agree that the royalty rate shall be reviewed every
+            <span class="hl green" onclick="activateTrace('compliance')" data-tip="Maps to §TP-C1 — Compliance clause">two fiscal years</span><span class="etag e-comp">§TP-C1</span>
+            or following a material change in business circumstances, including but not limited to restructuring, significant revenue changes exceeding 20%, or regulatory changes in any jurisdiction where either party is tax-resident.</p>
+
+            <p style="margin-top:12px">For the avoidance of doubt, the royalty base shall be defined as gross revenue less returns, discounts, and applicable indirect taxes. Documentation under OECD BEPS Action 13 requirements must be maintained contemporaneously.</p>
           </div>
-          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
-            <span style="font-size:11px;color:var(--text2)">Evidence tags:</span>
-            <span class="evidence-tag e1" style="font-size:10px">§TP-R — Rate reference</span>
-            <span class="evidence-tag e2" style="font-size:10px">§TP-M — Method reference</span>
-            <span class="evidence-tag e3" style="font-size:10px">§TP-C — Compliance clause</span>
+
+          <div class="doc-page">
+            <div class="doc-page-header">
+              <h4>§ 3.2 &mdash; Management Services</h4>
+              <span class="page-num">p. 5</span>
+            </div>
+
+            <p>Corporate management services shall be allocated using the
+            <span class="hl amber" onclick="activateTrace('mgmt-method')" data-tip="Maps to §TP-M2 — Cost-plus method">cost-plus method</span><span class="etag e-meth">§TP-M2</span>
+            with a markup of
+            <span class="hl amber" onclick="activateTrace('mgmt-rate')" data-tip="Maps to §TP-R2 — Markup range"><strong>8.0&ndash;12.5%</strong></span><span class="etag e-rate">§TP-R2</span>
+            over fully loaded costs. Allocation keys are headcount (40%), revenue (35%), and asset base (25%).</p>
+
+            <p style="margin-top:12px">The allocation methodology is reviewed annually and documented in the intercompany allocation memorandum. For FY 2024, total management fees charged amounted to
+            <span class="hl green" onclick="activateTrace('mgmt-total')" data-tip="Cross-referenced with financials">€8.7M</span><span class="etag e-comp">§TP-F1</span>,
+            consistent with the prior year level adjusted for headcount growth of 6.2%.</p>
+          </div>
+
+          <div class="evidence-legend">
+            <span>Evidence tags:</span>
+            <span class="etag e-rate">§TP-R — Rate reference</span>
+            <span class="etag e-meth">§TP-M — Method reference</span>
+            <span class="etag e-comp">§TP-C/F — Compliance / Financial</span>
           </div>
         </div>
       </div>
 
-      <!-- TRACE PANEL -->
-      <div class="trace-panel">
+      <!-- ── TRACE PANEL ── -->
+      <div class="panel trace-panel">
         <div class="panel-header">
-          <i class="ti ti-git-branch" aria-hidden="true" style="font-size:14px;color:var(--text2)"></i>
+          <i class="ti ti-git-branch" style="font-size:15px;color:var(--text2)"></i>
           <span class="panel-title">Reasoning trace</span>
           <span class="ai-badge">AI</span>
         </div>
+
         <div class="trace-content">
-          <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Hover over a highlighted passage to trace its derivation</div>
+          <p class="trace-intro">Click any highlighted passage in the document to trace how AI derived each output paragraph.</p>
 
-          <div class="trace-card active">
-            <div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:6px">Royalty rate → §TP-R1</div>
-            <div class="trace-step">
-              <div class="trace-num done">1</div>
-              <div><div class="trace-label">Extracted rate: 5.5%</div><div class="trace-source">interco_agreement §3.1 · p.4</div></div>
+          <div class="trace-card active" id="trace-rate" onclick="selectTrace(this)">
+            <div class="trace-card-title">
+              Royalty rate &rarr; §TP-R1
+              <span class="etag e-rate">Rate</span>
             </div>
             <div class="trace-step">
-              <div class="trace-num done">2</div>
-              <div><div class="trace-label">Cross-referenced with financials</div><div class="trace-source">financials_Q1-Q4.xlsx · Sheet 'Royalties'</div></div>
+              <div class="trace-num done"><i class="ti ti-check" style="font-size:9px"></i></div>
+              <div>
+                <div class="trace-label">Extracted: 5.5% royalty rate</div>
+                <div class="trace-source">interco_agreement §3.1 · p.4</div>
+              </div>
             </div>
             <div class="trace-step">
-              <div class="trace-num done">3</div>
-              <div><div class="trace-label">Benchmarked: 4.2–6.8% arm's length range</div><div class="trace-source">Bloomberg TP Comparables DB</div></div>
+              <div class="trace-num done"><i class="ti ti-check" style="font-size:9px"></i></div>
+              <div>
+                <div class="trace-label">Cross-ref with financial data</div>
+                <div class="trace-source">financials_Q1-Q4.xlsx · 'Royalties'</div>
+              </div>
             </div>
             <div class="trace-step">
-              <div class="trace-num warn">4</div>
-              <div><div class="trace-label">Rate is within range but near median</div><div class="trace-source">OECD Guidelines §2.58 · IQR check</div></div>
-            </div>
-            <div class="conf-bar">
-              <span class="conf-label" style="font-size:10px">Confidence</span>
-              <div class="conf-track"><div class="conf-fill" style="width:88%;background:#00c8a0"></div></div>
-              <span class="conf-label">88%</span>
-            </div>
-          </div>
-
-          <div class="trace-card">
-            <div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:6px">Method selection → §TP-M1</div>
-            <div class="trace-step">
-              <div class="trace-num done">1</div>
-              <div><div class="trace-label">CUP method identified in contract</div><div class="trace-source">interco_agreement §3.1 · p.4</div></div>
-            </div>
-            <div class="trace-step">
-              <div class="trace-num done">2</div>
-              <div><div class="trace-label">Validated: 3rd-party comparables exist</div><div class="trace-source">management_deck_2024.pptx · slide 14</div></div>
-            </div>
-            <div class="conf-bar">
-              <span class="conf-label" style="font-size:10px">Confidence</span>
-              <div class="conf-track"><div class="conf-fill" style="width:94%;background:#00c8a0"></div></div>
-              <span class="conf-label">94%</span>
-            </div>
-          </div>
-
-          <div class="trace-card">
-            <div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:6px">Review clause → §TP-C1</div>
-            <div class="trace-step">
-              <div class="trace-num done">1</div>
-              <div><div class="trace-label">2-year review cycle noted</div><div class="trace-source">interco_agreement §3.1 · p.4</div></div>
+              <div class="trace-num done"><i class="ti ti-check" style="font-size:9px"></i></div>
+              <div>
+                <div class="trace-label">Benchmarked: 4.2–6.8% IQR range</div>
+                <div class="trace-source">Bloomberg TP Comparables DB</div>
+              </div>
             </div>
             <div class="trace-step">
               <div class="trace-num warn">!</div>
-              <div><div class="trace-label">Last review: FY2022 — overdue for FY2024</div><div class="trace-source">AI inference from financials dates</div></div>
+              <div>
+                <div class="trace-label">Rate at 53rd percentile — within range, near median</div>
+                <div class="trace-source">OECD Guidelines §2.58</div>
+              </div>
             </div>
-            <div class="conf-bar">
-              <span class="conf-label" style="font-size:10px">Confidence</span>
-              <div class="conf-track"><div class="conf-fill" style="width:76%;background:#f5a623"></div></div>
-              <span class="conf-label">76%</span>
+            <div class="conf-row">
+              <span class="conf-label">Conf.</span>
+              <div class="conf-track">
+                <div class="conf-fill" style="width:88%;background:var(--accent2)"></div>
+              </div>
+              <span class="conf-pct">88%</span>
+            </div>
+          </div>
+
+          <div class="trace-card" id="trace-method" onclick="selectTrace(this)">
+            <div class="trace-card-title">
+              Method selection &rarr; §TP-M1
+              <span class="etag e-meth">Method</span>
+            </div>
+            <div class="trace-step">
+              <div class="trace-num done"><i class="ti ti-check" style="font-size:9px"></i></div>
+              <div>
+                <div class="trace-label">CUP method stated in contract</div>
+                <div class="trace-source">interco_agreement §3.1 · p.4</div>
+              </div>
+            </div>
+            <div class="trace-step">
+              <div class="trace-num done"><i class="ti ti-check" style="font-size:9px"></i></div>
+              <div>
+                <div class="trace-label">Validated: 3rd-party comparables identified</div>
+                <div class="trace-source">management_deck_2024.pptx · slide 14</div>
+              </div>
+            </div>
+            <div class="trace-step">
+              <div class="trace-num info">i</div>
+              <div>
+                <div class="trace-label">OECD preference for CUP confirmed</div>
+                <div class="trace-source">OECD TPG 2022 §2.14–2.26</div>
+              </div>
+            </div>
+            <div class="conf-row">
+              <span class="conf-label">Conf.</span>
+              <div class="conf-track">
+                <div class="conf-fill" style="width:94%;background:var(--accent2)"></div>
+              </div>
+              <span class="conf-pct">94%</span>
+            </div>
+          </div>
+
+          <div class="trace-card" id="trace-compliance" onclick="selectTrace(this)">
+            <div class="trace-card-title">
+              Review clause &rarr; §TP-C1
+              <span class="etag e-comp">Compliance</span>
+            </div>
+            <div class="trace-step">
+              <div class="trace-num done"><i class="ti ti-check" style="font-size:9px"></i></div>
+              <div>
+                <div class="trace-label">2-year review cycle extracted</div>
+                <div class="trace-source">interco_agreement §3.1 · p.4</div>
+              </div>
+            </div>
+            <div class="trace-step">
+              <div class="trace-num warn">!</div>
+              <div>
+                <div class="trace-label">Last review: FY 2022 — overdue for FY 2024</div>
+                <div class="trace-source">AI inference from document dates</div>
+              </div>
+            </div>
+            <div class="conf-row">
+              <span class="conf-label">Conf.</span>
+              <div class="conf-track">
+                <div class="conf-fill" style="width:76%;background:var(--gold)"></div>
+              </div>
+              <span class="conf-pct">76%</span>
+            </div>
+          </div>
+
+          <div class="trace-card" id="trace-mgmt-method" onclick="selectTrace(this)">
+            <div class="trace-card-title">
+              Mgmt. method &rarr; §TP-M2
+              <span class="etag e-meth">Method</span>
+            </div>
+            <div class="trace-step">
+              <div class="trace-num done"><i class="ti ti-check" style="font-size:9px"></i></div>
+              <div>
+                <div class="trace-label">Cost-plus stated; allocation keys extracted</div>
+                <div class="trace-source">interco_agreement §3.2 · p.5</div>
+              </div>
+            </div>
+            <div class="trace-step">
+              <div class="trace-num done"><i class="ti ti-check" style="font-size:9px"></i></div>
+              <div>
+                <div class="trace-label">10.2% markup calculated from financials</div>
+                <div class="trace-source">financials_Q1-Q4.xlsx · 'Mgmt Fees'</div>
+              </div>
+            </div>
+            <div class="conf-row">
+              <span class="conf-label">Conf.</span>
+              <div class="conf-track">
+                <div class="conf-fill" style="width:91%;background:var(--accent2)"></div>
+              </div>
+              <span class="conf-pct">91%</span>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- OUTPUT PANEL -->
-      <div class="output-panel">
+      <!-- ── OUTPUT PANEL ── -->
+      <div class="panel output-panel">
         <div class="panel-header">
-          <i class="ti ti-file-check" aria-hidden="true" style="font-size:14px;color:var(--text2)"></i>
-          <span class="panel-title">Local File Draft</span>
+          <i class="ti ti-file-check" style="font-size:15px;color:var(--text2)"></i>
+          <span class="panel-title">Local File — Draft Output</span>
           <span class="ai-badge">AI-generated · draft</span>
         </div>
+
+        <div class="out-toolbar">
+          <span class="toolbar-label">Jump to:</span>
+          <button class="section-pill active" onclick="pillActive(this)">§3 Transactions</button>
+          <button class="section-pill" onclick="pillActive(this)">§4 Functional Analysis</button>
+          <button class="section-pill" onclick="pillActive(this)">§5 Benchmarking</button>
+          <button class="section-pill" onclick="pillActive(this)">§6 Conclusion</button>
+        </div>
+
         <div class="output-content">
+
+          <!-- SECTION 3 -->
           <div class="out-section">
-            <div class="out-h1"><span class="section-num">3</span> Intercompany Transactions</div>
+            <div class="out-h1">
+              <span class="section-num">3</span>
+              Intercompany Transactions
+            </div>
+
             <div class="out-h2">3.1 Technology Licensing Arrangements</div>
-            <div class="out-p">
-              Siemens AG (the "Principal") licenses its EW-500 industrial software platform to Siemens Ltd., Singapore under an intercompany license agreement dated 15 March 2023. <span class="source-chip"><i class="ti ti-file-text" aria-hidden="true"></i> §3.1</span> The applicable royalty rate of <strong>5.5% of net revenue</strong> has been determined using the comparable uncontrolled price (CUP) method. <span class="source-chip"><i class="ti ti-file-text" aria-hidden="true"></i> §3.1</span> <span class="source-chip"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> Sheet 'Royalties'</span>
+
+            <p class="out-p">
+              Siemens AG (the &ldquo;Principal&rdquo;) licenses its EW-500 industrial software platform to Siemens Ltd., Singapore under an intercompany license agreement dated 15 March 2023.
+              <span class="src-chip" onclick="showToast('Navigating to: interco_agreement §3.1 · p.4')"><i class="ti ti-file-text"></i>§3.1 · p.4</span>
+              The applicable royalty rate of <strong>5.5% of net revenue</strong> has been determined using the comparable uncontrolled price (CUP) method, with reference to third-party license agreements entered into between 2021 and 2023.
+              <span class="src-chip" onclick="showToast('Navigating to: interco_agreement §3.1 · p.4')"><i class="ti ti-file-text"></i>§3.1</span>
+              <span class="src-chip" onclick="showToast('Navigating to: financials Sheet Royalties')"><i class="ti ti-file-spreadsheet"></i>Royalties</span>
+            </p>
+
+            <div class="metrics-grid">
+              <div class="metric-card">
+                <div class="metric-label">Applied rate</div>
+                <div class="metric-value">5.5%</div>
+                <div class="metric-sub">of net revenue</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">Arm's length range</div>
+                <div class="metric-value">4.2–6.8%</div>
+                <div class="metric-sub">IQR &middot; 12 comparables</div>
+              </div>
+              <div class="metric-card">
+                <div class="metric-label">FY 2024 royalties paid</div>
+                <div class="metric-value">€42.3M</div>
+                <div class="metric-sub">per audited financials</div>
+              </div>
             </div>
 
-            <div class="value-block">
-              <div class="value-card">
-                <div class="value-label">Applied rate</div>
-                <div class="value-num">5.5%</div>
-                <div class="value-sub">of net revenue</div>
-              </div>
-              <div class="value-card">
-                <div class="value-label">Arm's length range</div>
-                <div class="value-num">4.2–6.8%</div>
-                <div class="value-sub">IQR · 12 comparables</div>
-              </div>
-              <div class="value-card">
-                <div class="value-label">FY2024 royalties paid</div>
-                <div class="value-num">€42.3M</div>
-                <div class="value-sub">per financials</div>
-              </div>
-            </div>
+            <p class="out-p">
+              The arm&rsquo;s length range was established by reference to 12 comparable third-party licensing agreements sourced from the Bloomberg Transfer Pricing Comparables database, yielding an interquartile range of 4.2% to 6.8%.
+              <span class="src-chip" onclick="showToast('Navigating to: Bloomberg TP Comparables DB')"><i class="ti ti-chart-bar"></i>Bloomberg TP DB</span>
+              The applied rate of 5.5% falls within this range, at the 53rd percentile.
+            </p>
 
-            <div class="out-p">The arm's length range was established using 12 comparable third-party license agreements sourced from the Bloomberg Transfer Pricing database, with the interquartile range yielding a range of 4.2% to 6.8%. The applied rate of 5.5% falls within this range. <span class="source-chip"><i class="ti ti-chart-bar" aria-hidden="true"></i> Bloomberg TP DB</span></div>
-
-            <div class="range-bar">
-              <span style="font-size:10px;color:var(--text2)">4.2%</span>
+            <div class="range-visual">
+              <span class="range-val">4.2%</span>
               <div class="range-track">
                 <div class="range-fill"></div>
-                <div class="range-dot" title="Applied: 5.5%"></div>
+                <div class="range-median" title="Applied: 5.5%"></div>
               </div>
-              <span style="font-size:10px;color:var(--text2)">6.8%</span>
+              <span class="range-val" style="text-align:right">6.8%</span>
+            </div>
+            <div class="range-legend">
+              <span>
+                <svg width="24" height="8" viewBox="0 0 24 8"><rect x="0" y="2" width="24" height="4" rx="2" fill="rgba(0,200,160,0.3)"/></svg>
+                Interquartile range
+              </span>
+              <span>
+                <svg width="10" height="10" viewBox="0 0 10 10"><circle cx="5" cy="5" r="4" fill="white" stroke="#2a7fff" stroke-width="2"/></svg>
+                Applied rate (5.5%)
+              </span>
             </div>
 
             <div class="out-h2">3.2 Compliance Observations</div>
+
             <div class="flag warn">
-              <i class="ti ti-alert-triangle" aria-hidden="true"></i>
-              <div class="flag-text">The intercompany agreement stipulates a biennial rate review. Based on the agreement date (March 2023) and FY2024 documentation, a formal rate review may be overdue. It is recommended that an updated benchmarking study be commissioned. <span class="source-chip"><i class="ti ti-file-text" aria-hidden="true"></i> §3.1 ¶2</span></div>
+              <i class="ti ti-alert-triangle"></i>
+              <div class="flag-text">
+                The intercompany agreement stipulates a biennial rate review (§3.1 ¶2). Based on the agreement execution date (March 2023) and the FY 2024 documentation period, a formal rate review may be overdue. It is recommended that management commission an updated benchmarking study no later than Q1 2025.
+                <span class="src-chip" onclick="showToast('Navigating to: interco_agreement §3.1 ¶2')"><i class="ti ti-file-text"></i>§3.1 ¶2</span>
+              </div>
             </div>
+
             <div class="flag ok">
-              <i class="ti ti-circle-check" aria-hidden="true"></i>
-              <div class="flag-text">The CUP method selection is appropriate given the availability of comparable uncontrolled transactions and is consistent with OECD Transfer Pricing Guidelines §2.14–2.26. <span class="source-chip"><i class="ti ti-presentation" aria-hidden="true"></i> slide 14</span></div>
+              <i class="ti ti-circle-check"></i>
+              <div class="flag-text">
+                The selection of the CUP method is appropriate given the existence of comparable uncontrolled transactions. This is consistent with OECD Transfer Pricing Guidelines 2022 §2.14–2.26, which accord preference to the CUP method where reliable comparables are available.
+                <span class="src-chip" onclick="showToast('Navigating to: management_deck slide 14')"><i class="ti ti-presentation"></i>slide 14</span>
+                <span class="src-chip" onclick="showToast('Navigating to: OECD TPG §2.14')"><i class="ti ti-world"></i>OECD TPG</span>
+              </div>
+            </div>
+
+            <div class="out-h2">3.3 Management Services</div>
+
+            <p class="out-p">
+              Corporate management services are provided by Siemens AG to Siemens Ltd., Singapore under a cost-plus arrangement with a markup of <strong>8.0–12.5%</strong> over fully loaded costs.
+              <span class="src-chip" onclick="showToast('Navigating to: interco_agreement §3.2 · p.5')"><i class="ti ti-file-text"></i>§3.2 · p.5</span>
+              For FY 2024, the effective markup was <strong>10.2%</strong>, within the stated range. Total management fees charged amounted to <strong>€8.7M</strong>, consistent with the prior-year level adjusted for headcount growth of 6.2%.
+              <span class="src-chip" onclick="showToast('Navigating to: financials Sheet Mgmt Fees')"><i class="ti ti-file-spreadsheet"></i>Mgmt Fees</span>
+            </p>
+
+            <div class="flag info">
+              <i class="ti ti-info-circle"></i>
+              <div class="flag-text">
+                Allocation keys (headcount 40%, revenue 35%, asset base 25%) have not changed since FY 2022. Consider documenting rationale for unchanged keys in the intercompany allocation memorandum.
+              </div>
             </div>
           </div>
+
         </div>
+
         <div class="out-actions">
-          <button class="btn"><i class="ti ti-pencil" aria-hidden="true"></i> Edit</button>
-          <button class="btn"><i class="ti ti-refresh" aria-hidden="true"></i> Regenerate</button>
+          <button class="btn" onclick="showToast('Opening inline editor…')">
+            <i class="ti ti-pencil"></i> Edit
+          </button>
+          <button class="btn" onclick="showToast('Regenerating section with latest comparables…')">
+            <i class="ti ti-refresh"></i> Regenerate
+          </button>
+          <button class="btn" onclick="showToast('Adding reviewer comment…')">
+            <i class="ti ti-message"></i> Comment
+          </button>
           <div style="flex:1"></div>
-          <button class="btn primary"><i class="ti ti-download" aria-hidden="true"></i> Export DOCX</button>
+          <button class="btn" onclick="showToast('Exporting as PDF…')">
+            <i class="ti ti-file-type-pdf"></i> PDF
+          </button>
+          <button class="btn primary" onclick="showToast('Exporting DOCX with footnotes and evidence appendix…')">
+            <i class="ti ti-download"></i> Export DOCX
+          </button>
         </div>
       </div>
-    </div>
-  </div>
+
+    </div><!-- /panels -->
+
+  </div><!-- /main -->
+</div><!-- /app -->
+
+<!-- ─── TOAST ─── -->
+<div class="toast" id="toast">
+  <i class="ti ti-info-circle" style="font-size:16px"></i>
+  <span id="toast-msg"></span>
 </div>
 
 <script>
-function switchTab(el, screen) {
-  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
-  el.classList.add('active');
-}
+  // Tab switching
+  function switchTab(el) {
+    document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+    el.classList.add('active');
+    showToast('Switched to ' + el.textContent + ' view');
+  }
+
+  // Section pills
+  function pillActive(el) {
+    document.querySelectorAll('.section-pill').forEach(p => p.classList.remove('active'));
+    el.classList.add('active');
+    showToast('Navigating to ' + el.textContent);
+  }
+
+  // Activate a trace card by ID
+  function activateTrace(id) {
+    const card = document.getElementById('trace-' + id);
+    if (!card) return;
+    document.querySelectorAll('.trace-card').forEach(c => c.classList.remove('active'));
+    card.classList.add('active');
+    card.classList.add('just-activated');
+    card.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    setTimeout(() => card.classList.remove('just-activated'), 400);
+  }
+
+  // Select trace card on click
+  function selectTrace(el) {
+    document.querySelectorAll('.trace-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+  }
+
+  // Change active doc in sidebar and update panel header
+  function activateDoc(el, name) {
+    document.querySelectorAll('.doc-item').forEach(d => d.style.background = '');
+    el.style.background = 'var(--surface3)';
+    document.getElementById('doc-title').textContent = el.querySelector('.doc-name').textContent;
+    showToast('Loaded: ' + name);
+  }
+
+  // Toast notification
+  let toastTimer;
+  function showToast(msg) {
+    const t = document.getElementById('toast');
+    document.getElementById('toast-msg').textContent = msg;
+    t.classList.add('show');
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => t.classList.remove('show'), 2800);
+  }
 </script>
+
+</body>
+</html>
