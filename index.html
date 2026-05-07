@@ -1,0 +1,345 @@
+
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --navy: #0f1b2d;
+    --navy2: #162236;
+    --navy3: #1e3050;
+    --accent: #2a7fff;
+    --accent2: #00c8a0;
+    --gold: #f5a623;
+    --text: var(--color-text-primary);
+    --text2: var(--color-text-secondary);
+    --border: var(--color-border-tertiary);
+    --surface: var(--color-background-primary);
+    --surface2: var(--color-background-secondary);
+    --r: 8px;
+    --r2: 12px;
+  }
+  .app { display: flex; flex-direction: column; height: 700px; font-size: 13px; background: var(--surface2); border-radius: var(--r2); overflow: hidden; border: 0.5px solid var(--border); }
+  .topbar { display: flex; align-items: center; gap: 12px; padding: 10px 16px; background: var(--surface); border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+  .logo { font-size: 14px; font-weight: 500; color: var(--text); letter-spacing: -0.3px; }
+  .logo span { color: #2a7fff; }
+  .project-badge { background: var(--surface2); border: 0.5px solid var(--border); border-radius: 6px; padding: 3px 10px; font-size: 12px; color: var(--text2); }
+  .tabs { display: flex; gap: 2px; margin-left: auto; }
+  .tab { padding: 5px 14px; border-radius: 6px; font-size: 12px; color: var(--text2); cursor: pointer; border: none; background: transparent; }
+  .tab.active { background: var(--surface2); color: var(--text); font-weight: 500; }
+  .main { display: flex; flex: 1; overflow: hidden; }
+  /* SIDEBAR */
+  .sidebar { width: 200px; flex-shrink: 0; border-right: 0.5px solid var(--border); background: var(--surface); display: flex; flex-direction: column; overflow: hidden; }
+  .sidebar-section { padding: 10px 12px 4px; font-size: 10px; font-weight: 500; color: var(--text2); text-transform: uppercase; letter-spacing: 0.08em; }
+  .sidebar-item { display: flex; align-items: center; gap: 8px; padding: 6px 12px; font-size: 12px; color: var(--text2); cursor: pointer; border-radius: 0; transition: background .1s; border-left: 2px solid transparent; }
+  .sidebar-item:hover { background: var(--surface2); }
+  .sidebar-item.active { color: var(--text); border-left-color: #2a7fff; background: var(--surface2); }
+  .sidebar-item i { font-size: 15px; }
+  .doc-item { display: flex; align-items: center; gap: 8px; padding: 5px 12px; font-size: 11px; color: var(--text2); cursor: pointer; }
+  .doc-item:hover { background: var(--surface2); color: var(--text); }
+  .doc-badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; font-weight: 500; }
+  .doc-badge.green { background: #e8f5ee; color: #1a7a42; }
+  .doc-badge.blue { background: #e3eeff; color: #1a50a0; }
+  .doc-badge.amber { background: #fff3da; color: #8a6010; }
+  @media (prefers-color-scheme: dark) {
+    .doc-badge.green { background: #0d3320; color: #4ecb80; }
+    .doc-badge.blue { background: #0d2244; color: #6aaeff; }
+    .doc-badge.amber { background: #332500; color: #f5c060; }
+  }
+  .upload-btn { margin: 10px 12px; padding: 7px; border: 0.5px dashed var(--border); border-radius: var(--r); font-size: 11px; color: var(--text2); cursor: pointer; text-align: center; display: flex; align-items: center; justify-content: center; gap: 6px; background: none; }
+  .upload-btn:hover { border-color: var(--accent); color: var(--accent); }
+  /* MAIN PANELS */
+  .panels { flex: 1; display: flex; overflow: hidden; }
+  /* DOC VIEWER */
+  .doc-view { width: 45%; border-right: 0.5px solid var(--border); display: flex; flex-direction: column; overflow: hidden; }
+  .panel-header { display: flex; align-items: center; gap: 8px; padding: 8px 14px; background: var(--surface); border-bottom: 0.5px solid var(--border); flex-shrink: 0; }
+  .panel-title { font-size: 12px; font-weight: 500; color: var(--text); }
+  .panel-sub { font-size: 11px; color: var(--text2); margin-left: auto; }
+  .doc-content { flex: 1; overflow-y: auto; padding: 16px; }
+  .doc-page { background: white; border: 0.5px solid #d0d0d0; border-radius: 6px; padding: 20px 24px; margin-bottom: 12px; font-size: 12px; color: #333; line-height: 1.7; }
+  @media (prefers-color-scheme: dark) {
+    .doc-page { background: #1e2535; border-color: #2e3545; color: #c0c8d8; }
+  }
+  .doc-page h4 { font-size: 11px; font-weight: 500; margin-bottom: 10px; color: #888; text-transform: uppercase; letter-spacing: 0.05em; }
+  .highlight { background: rgba(245,166,35,0.25); border-radius: 2px; cursor: pointer; border-bottom: 1.5px solid #f5a623; }
+  .highlight:hover { background: rgba(245,166,35,0.4); }
+  .highlight.blue { background: rgba(42,127,255,0.15); border-bottom-color: #2a7fff; }
+  .highlight.green { background: rgba(0,200,160,0.15); border-bottom-color: #00c8a0; }
+  .evidence-tag { display: inline-flex; align-items: center; gap: 3px; font-size: 9px; font-weight: 500; padding: 1px 5px; border-radius: 3px; vertical-align: middle; margin-left: 3px; cursor: pointer; }
+  .evidence-tag.e1 { background: rgba(245,166,35,0.2); color: #a07010; }
+  .evidence-tag.e2 { background: rgba(42,127,255,0.15); color: #1a60c0; }
+  .evidence-tag.e3 { background: rgba(0,200,160,0.15); color: #006b55; }
+  @media (prefers-color-scheme: dark) {
+    .evidence-tag.e1 { color: #f5c060; }
+    .evidence-tag.e2 { color: #6aaeff; }
+    .evidence-tag.e3 { color: #30d8b0; }
+  }
+  /* TRACE PANEL */
+  .trace-panel { width: 22%; border-right: 0.5px solid var(--border); display: flex; flex-direction: column; overflow: hidden; background: var(--surface); }
+  .trace-content { flex: 1; overflow-y: auto; padding: 10px; }
+  .trace-card { border: 0.5px solid var(--border); border-radius: var(--r); padding: 8px 10px; margin-bottom: 8px; cursor: pointer; transition: border-color .1s; }
+  .trace-card:hover { border-color: var(--accent); }
+  .trace-card.active { border-color: #2a7fff; background: rgba(42,127,255,0.05); }
+  .trace-step { display: flex; align-items: flex-start; gap: 7px; margin-bottom: 6px; font-size: 11px; }
+  .trace-num { width: 16px; height: 16px; border-radius: 50%; background: #2a7fff; color: white; font-size: 9px; font-weight: 500; display: flex; align-items: center; justify-content: center; flex-shrink: 0; margin-top: 1px; }
+  .trace-num.done { background: #00c8a0; }
+  .trace-num.warn { background: #f5a623; }
+  .trace-label { color: var(--text); line-height: 1.4; }
+  .trace-source { font-size: 10px; color: var(--text2); margin-top: 2px; }
+  .conf-bar { display: flex; align-items: center; gap: 6px; margin-top: 6px; }
+  .conf-track { flex: 1; height: 3px; background: var(--surface2); border-radius: 2px; overflow: hidden; }
+  .conf-fill { height: 100%; border-radius: 2px; }
+  .conf-label { font-size: 10px; color: var(--text2); min-width: 30px; }
+  /* OUTPUT PANEL */
+  .output-panel { flex: 1; display: flex; flex-direction: column; overflow: hidden; }
+  .output-content { flex: 1; overflow-y: auto; padding: 16px; }
+  .out-section { margin-bottom: 18px; }
+  .out-h1 { font-size: 13px; font-weight: 500; color: var(--text); margin-bottom: 8px; padding-bottom: 6px; border-bottom: 0.5px solid var(--border); display: flex; align-items: center; gap: 8px; }
+  .out-h2 { font-size: 12px; font-weight: 500; color: var(--text); margin-bottom: 5px; margin-top: 10px; }
+  .out-p { font-size: 12px; color: var(--text2); line-height: 1.7; margin-bottom: 8px; }
+  .source-chip { display: inline-flex; align-items: center; gap: 3px; font-size: 10px; padding: 1px 6px; border-radius: 4px; border: 0.5px solid var(--border); background: var(--surface2); color: var(--text2); margin: 1px 2px; cursor: pointer; vertical-align: middle; }
+  .source-chip:hover { border-color: var(--accent); color: var(--accent); }
+  .source-chip i { font-size: 11px; }
+  .value-block { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; margin: 10px 0; }
+  .value-card { background: var(--surface2); border-radius: var(--r); padding: 10px 12px; border: 0.5px solid var(--border); }
+  .value-label { font-size: 10px; color: var(--text2); margin-bottom: 3px; }
+  .value-num { font-size: 18px; font-weight: 500; color: var(--text); }
+  .value-sub { font-size: 10px; color: var(--text2); }
+  .range-bar { display: flex; align-items: center; gap: 8px; margin: 6px 0; font-size: 11px; }
+  .range-track { flex: 1; height: 6px; background: var(--surface2); border-radius: 3px; position: relative; }
+  .range-fill { position: absolute; left: 20%; right: 18%; height: 100%; background: linear-gradient(90deg, var(--accent2), var(--accent)); border-radius: 3px; }
+  .range-dot { position: absolute; left: 50%; top: 50%; transform: translate(-50%,-50%); width: 10px; height: 10px; border-radius: 50%; background: white; border: 2px solid var(--accent); }
+  .flag { display: flex; align-items: flex-start; gap: 6px; padding: 7px 10px; border-radius: var(--r); margin-bottom: 6px; font-size: 11px; }
+  .flag.warn { background: rgba(245,166,35,0.1); border: 0.5px solid rgba(245,166,35,0.3); }
+  .flag.ok { background: rgba(0,200,160,0.08); border: 0.5px solid rgba(0,200,160,0.25); }
+  .flag i { font-size: 14px; flex-shrink: 0; margin-top: 0px; }
+  .flag.warn i { color: var(--gold); }
+  .flag.ok i { color: var(--accent2); }
+  .flag-text { color: var(--text2); line-height: 1.5; }
+  .out-actions { display: flex; gap: 8px; padding: 10px 16px; border-top: 0.5px solid var(--border); flex-shrink: 0; background: var(--surface); }
+  .btn { display: inline-flex; align-items: center; gap: 5px; padding: 6px 14px; border-radius: var(--r); font-size: 12px; cursor: pointer; border: 0.5px solid var(--border); background: var(--surface2); color: var(--text); transition: background .1s; }
+  .btn:hover { background: var(--surface); }
+  .btn.primary { background: #2a7fff; color: white; border-color: #2a7fff; }
+  .btn.primary:hover { background: #1a6fee; }
+  .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--accent2); display: inline-block; }
+  .ai-badge { font-size: 9px; padding: 1px 5px; border-radius: 3px; background: rgba(42,127,255,0.12); color: #2a7fff; font-weight: 500; }
+  /* Scrollbar */
+  ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+  .active-screen { display: flex; flex: 1; overflow: hidden; }
+  .hidden-screen { display: none; }
+  .section-num { display: inline-flex; align-items: center; justify-content: center; width: 18px; height: 18px; border-radius: 50%; background: var(--surface2); border: 0.5px solid var(--border); font-size: 10px; font-weight: 500; color: var(--text2); }
+</style>
+
+<div class="app" role="main" aria-label="TransferIQ SaaS platform mockup">
+  <h2 class="sr-only">TransferIQ — AI-powered transfer pricing document analysis platform</h2>
+  <!-- TOP BAR -->
+  <div class="topbar">
+    <div class="logo">Transfer<span>IQ</span></div>
+    <div class="project-badge"><i class="ti ti-building" aria-hidden="true"></i> Siemens AG · FY2024</div>
+    <div style="flex:1"></div>
+    <div style="display:flex;align-items:center;gap:6px;font-size:11px;color:var(--text2)">
+      <span class="status-dot"></span> AI analysis complete
+    </div>
+    <div class="tabs">
+      <button class="tab active" onclick="switchTab(this,'analysis')">Analysis</button>
+      <button class="tab" onclick="switchTab(this,'output')">Output</button>
+      <button class="tab" onclick="switchTab(this,'review')">Review</button>
+    </div>
+  </div>
+
+  <div class="main">
+    <!-- SIDEBAR -->
+    <div class="sidebar">
+      <div class="sidebar-section">Workspace</div>
+      <div class="sidebar-item active"><i class="ti ti-layout-dashboard" aria-hidden="true"></i> Analysis</div>
+      <div class="sidebar-item"><i class="ti ti-file-text" aria-hidden="true"></i> Master File</div>
+      <div class="sidebar-item"><i class="ti ti-file" aria-hidden="true"></i> Local File</div>
+      <div class="sidebar-item"><i class="ti ti-chart-bar" aria-hidden="true"></i> Benchmarking</div>
+      <div class="sidebar-item"><i class="ti ti-history" aria-hidden="true"></i> Audit Trail</div>
+      <div style="height:1px;background:var(--border);margin:8px 0"></div>
+      <div class="sidebar-section">Source Documents</div>
+      <div class="doc-item"><i class="ti ti-file-text" aria-hidden="true" style="font-size:13px"></i> <span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">interco_agreement_2024.pdf</span> <span class="doc-badge green">✓</span></div>
+      <div class="doc-item"><i class="ti ti-file-spreadsheet" aria-hidden="true" style="font-size:13px"></i> <span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">financials_Q1-Q4.xlsx</span> <span class="doc-badge green">✓</span></div>
+      <div class="doc-item"><i class="ti ti-presentation" aria-hidden="true" style="font-size:13px"></i> <span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">management_deck_2024.pptx</span> <span class="doc-badge green">✓</span></div>
+      <div class="doc-item"><i class="ti ti-file-text" aria-hidden="true" style="font-size:13px"></i> <span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">royalty_contracts.pdf</span> <span class="doc-badge green">✓</span></div>
+      <div class="doc-item"><i class="ti ti-file" aria-hidden="true" style="font-size:13px"></i> <span style="flex:1;font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap">invoices_batch_47.zip</span> <span class="doc-badge amber">→</span></div>
+      <button class="upload-btn"><i class="ti ti-upload" aria-hidden="true"></i> Upload documents</button>
+      <div style="flex:1"></div>
+      <div style="padding:10px 12px;font-size:11px;color:var(--text2);border-top:0.5px solid var(--border)">
+        <div style="margin-bottom:4px">Analysis progress</div>
+        <div style="height:4px;background:var(--surface2);border-radius:2px;overflow:hidden"><div style="width:82%;height:100%;background:#2a7fff;border-radius:2px"></div></div>
+        <div style="margin-top:3px">82% · 3 items pending</div>
+      </div>
+    </div>
+
+    <!-- MAIN PANELS - ANALYSIS VIEW -->
+    <div class="panels active-screen" id="screen-analysis">
+      <!-- DOC VIEWER -->
+      <div class="doc-view">
+        <div class="panel-header">
+          <i class="ti ti-file-text" aria-hidden="true" style="font-size:14px;color:var(--text2)"></i>
+          <span class="panel-title">interco_agreement_2024.pdf</span>
+          <span class="panel-sub">p. 4 of 18</span>
+        </div>
+        <div class="doc-content">
+          <div class="doc-page">
+            <h4>3.1 Service Fees — Technology Licensing</h4>
+            <p>The Licensor (Siemens AG, Germany) shall charge the Licensee (Siemens Ltd., Singapore) a <span class="highlight" title="Click to see where this maps in output">royalty rate of <strong>5.5% of net revenue</strong></span><span class="evidence-tag e1">§TP-R1</span> for use of the EW-500 industrial software platform. The rate is determined based on the <span class="highlight blue">comparable uncontrolled price (CUP) method</span><span class="evidence-tag e2">§TP-M1</span>, referencing third-party licenses entered into by the Licensor between 2021 and 2023.</p>
+
+            <p style="margin-top:10px">Payment terms are net-60 from invoice date. The parties agree that the royalty rate shall be reviewed every <span class="highlight green">two fiscal years</span><span class="evidence-tag e3">§TP-C1</span> or following a material change in business circumstances, including but not limited to restructuring, significant revenue changes exceeding 20%, or regulatory changes.</p>
+
+            <p style="margin-top:10px">For the avoidance of doubt, the royalty base shall be defined as gross revenue less returns, discounts, and applicable taxes. Documentation under OECD BEPS Action 13 requirements must be maintained contemporaneously.</p>
+          </div>
+          <div class="doc-page">
+            <h4>3.2 Management Services</h4>
+            <p>Corporate management services shall be allocated using the <span class="highlight" title="Cost allocation basis">cost-plus method</span><span class="evidence-tag e1">§TP-M2</span> with a markup of <span class="highlight"><strong>8.0–12.5%</strong></span><span class="evidence-tag e1">§TP-R2</span> over fully loaded costs. Allocation keys are headcount (40%), revenue (35%), and asset base (25%).</p>
+          </div>
+          <div style="display:flex;gap:6px;flex-wrap:wrap;margin-top:8px">
+            <span style="font-size:11px;color:var(--text2)">Evidence tags:</span>
+            <span class="evidence-tag e1" style="font-size:10px">§TP-R — Rate reference</span>
+            <span class="evidence-tag e2" style="font-size:10px">§TP-M — Method reference</span>
+            <span class="evidence-tag e3" style="font-size:10px">§TP-C — Compliance clause</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- TRACE PANEL -->
+      <div class="trace-panel">
+        <div class="panel-header">
+          <i class="ti ti-git-branch" aria-hidden="true" style="font-size:14px;color:var(--text2)"></i>
+          <span class="panel-title">Reasoning trace</span>
+          <span class="ai-badge">AI</span>
+        </div>
+        <div class="trace-content">
+          <div style="font-size:11px;color:var(--text2);margin-bottom:8px">Hover over a highlighted passage to trace its derivation</div>
+
+          <div class="trace-card active">
+            <div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:6px">Royalty rate → §TP-R1</div>
+            <div class="trace-step">
+              <div class="trace-num done">1</div>
+              <div><div class="trace-label">Extracted rate: 5.5%</div><div class="trace-source">interco_agreement §3.1 · p.4</div></div>
+            </div>
+            <div class="trace-step">
+              <div class="trace-num done">2</div>
+              <div><div class="trace-label">Cross-referenced with financials</div><div class="trace-source">financials_Q1-Q4.xlsx · Sheet 'Royalties'</div></div>
+            </div>
+            <div class="trace-step">
+              <div class="trace-num done">3</div>
+              <div><div class="trace-label">Benchmarked: 4.2–6.8% arm's length range</div><div class="trace-source">Bloomberg TP Comparables DB</div></div>
+            </div>
+            <div class="trace-step">
+              <div class="trace-num warn">4</div>
+              <div><div class="trace-label">Rate is within range but near median</div><div class="trace-source">OECD Guidelines §2.58 · IQR check</div></div>
+            </div>
+            <div class="conf-bar">
+              <span class="conf-label" style="font-size:10px">Confidence</span>
+              <div class="conf-track"><div class="conf-fill" style="width:88%;background:#00c8a0"></div></div>
+              <span class="conf-label">88%</span>
+            </div>
+          </div>
+
+          <div class="trace-card">
+            <div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:6px">Method selection → §TP-M1</div>
+            <div class="trace-step">
+              <div class="trace-num done">1</div>
+              <div><div class="trace-label">CUP method identified in contract</div><div class="trace-source">interco_agreement §3.1 · p.4</div></div>
+            </div>
+            <div class="trace-step">
+              <div class="trace-num done">2</div>
+              <div><div class="trace-label">Validated: 3rd-party comparables exist</div><div class="trace-source">management_deck_2024.pptx · slide 14</div></div>
+            </div>
+            <div class="conf-bar">
+              <span class="conf-label" style="font-size:10px">Confidence</span>
+              <div class="conf-track"><div class="conf-fill" style="width:94%;background:#00c8a0"></div></div>
+              <span class="conf-label">94%</span>
+            </div>
+          </div>
+
+          <div class="trace-card">
+            <div style="font-size:11px;font-weight:500;color:var(--text);margin-bottom:6px">Review clause → §TP-C1</div>
+            <div class="trace-step">
+              <div class="trace-num done">1</div>
+              <div><div class="trace-label">2-year review cycle noted</div><div class="trace-source">interco_agreement §3.1 · p.4</div></div>
+            </div>
+            <div class="trace-step">
+              <div class="trace-num warn">!</div>
+              <div><div class="trace-label">Last review: FY2022 — overdue for FY2024</div><div class="trace-source">AI inference from financials dates</div></div>
+            </div>
+            <div class="conf-bar">
+              <span class="conf-label" style="font-size:10px">Confidence</span>
+              <div class="conf-track"><div class="conf-fill" style="width:76%;background:#f5a623"></div></div>
+              <span class="conf-label">76%</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- OUTPUT PANEL -->
+      <div class="output-panel">
+        <div class="panel-header">
+          <i class="ti ti-file-check" aria-hidden="true" style="font-size:14px;color:var(--text2)"></i>
+          <span class="panel-title">Local File Draft</span>
+          <span class="ai-badge">AI-generated · draft</span>
+        </div>
+        <div class="output-content">
+          <div class="out-section">
+            <div class="out-h1"><span class="section-num">3</span> Intercompany Transactions</div>
+            <div class="out-h2">3.1 Technology Licensing Arrangements</div>
+            <div class="out-p">
+              Siemens AG (the "Principal") licenses its EW-500 industrial software platform to Siemens Ltd., Singapore under an intercompany license agreement dated 15 March 2023. <span class="source-chip"><i class="ti ti-file-text" aria-hidden="true"></i> §3.1</span> The applicable royalty rate of <strong>5.5% of net revenue</strong> has been determined using the comparable uncontrolled price (CUP) method. <span class="source-chip"><i class="ti ti-file-text" aria-hidden="true"></i> §3.1</span> <span class="source-chip"><i class="ti ti-file-spreadsheet" aria-hidden="true"></i> Sheet 'Royalties'</span>
+            </div>
+
+            <div class="value-block">
+              <div class="value-card">
+                <div class="value-label">Applied rate</div>
+                <div class="value-num">5.5%</div>
+                <div class="value-sub">of net revenue</div>
+              </div>
+              <div class="value-card">
+                <div class="value-label">Arm's length range</div>
+                <div class="value-num">4.2–6.8%</div>
+                <div class="value-sub">IQR · 12 comparables</div>
+              </div>
+              <div class="value-card">
+                <div class="value-label">FY2024 royalties paid</div>
+                <div class="value-num">€42.3M</div>
+                <div class="value-sub">per financials</div>
+              </div>
+            </div>
+
+            <div class="out-p">The arm's length range was established using 12 comparable third-party license agreements sourced from the Bloomberg Transfer Pricing database, with the interquartile range yielding a range of 4.2% to 6.8%. The applied rate of 5.5% falls within this range. <span class="source-chip"><i class="ti ti-chart-bar" aria-hidden="true"></i> Bloomberg TP DB</span></div>
+
+            <div class="range-bar">
+              <span style="font-size:10px;color:var(--text2)">4.2%</span>
+              <div class="range-track">
+                <div class="range-fill"></div>
+                <div class="range-dot" title="Applied: 5.5%"></div>
+              </div>
+              <span style="font-size:10px;color:var(--text2)">6.8%</span>
+            </div>
+
+            <div class="out-h2">3.2 Compliance Observations</div>
+            <div class="flag warn">
+              <i class="ti ti-alert-triangle" aria-hidden="true"></i>
+              <div class="flag-text">The intercompany agreement stipulates a biennial rate review. Based on the agreement date (March 2023) and FY2024 documentation, a formal rate review may be overdue. It is recommended that an updated benchmarking study be commissioned. <span class="source-chip"><i class="ti ti-file-text" aria-hidden="true"></i> §3.1 ¶2</span></div>
+            </div>
+            <div class="flag ok">
+              <i class="ti ti-circle-check" aria-hidden="true"></i>
+              <div class="flag-text">The CUP method selection is appropriate given the availability of comparable uncontrolled transactions and is consistent with OECD Transfer Pricing Guidelines §2.14–2.26. <span class="source-chip"><i class="ti ti-presentation" aria-hidden="true"></i> slide 14</span></div>
+            </div>
+          </div>
+        </div>
+        <div class="out-actions">
+          <button class="btn"><i class="ti ti-pencil" aria-hidden="true"></i> Edit</button>
+          <button class="btn"><i class="ti ti-refresh" aria-hidden="true"></i> Regenerate</button>
+          <div style="flex:1"></div>
+          <button class="btn primary"><i class="ti ti-download" aria-hidden="true"></i> Export DOCX</button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(el, screen) {
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  el.classList.add('active');
+}
+</script>
